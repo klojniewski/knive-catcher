@@ -1,0 +1,27 @@
+{
+  "name": "knive-catcher",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "ava"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/klojniewski/knive-catcher.git"
+  },
+  "author": "Chris Lojniewski <chris@pagepro.co> (http://pagepro.co)",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/klojniewski/poloaltbot/issues"
+  },
+  "homepage": "https://github.com/klojniewski/poloaltbot#readme",
+  "dependencies": {
+    "moment": "^2.18.1",
+    "mongoose": "^4.10.7"
+  },
+  "devDependencies": {
+    "ava": "^0.22.0"
+  }
+}
