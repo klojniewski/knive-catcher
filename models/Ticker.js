@@ -1,7 +1,7 @@
 const moment = require('moment')
-const mongoose = require('mongoose');
-const Schema = mongoose.Schema;
-mongoose.Promise = global.Promise;
+const mongoose = require('mongoose')
+const Schema = mongoose.Schema
+mongoose.Promise = global.Promise
 
 const tickerSchema = new Schema({
   currencyPair: String,
@@ -16,7 +16,7 @@ const tickerSchema = new Schema({
   dayHigh: Number,
   dayLow: Number,
   time: Number
-});
+})
 
 tickerSchema.statics.findInTime = function (currencyPair, hours, callback) {
   return this.findOne({
@@ -39,4 +39,4 @@ tickerSchema.statics.findMinByHour = function (currencyPair, hours, callback) {
   return this.findInTime(currencyPair, hours, callback).sort({ highestBid: 1 })
 }
 
-module.exports = mongoose.model('Ticker', tickerSchema);
+module.exports = mongoose.model('Ticker', tickerSchema)
