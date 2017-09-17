@@ -6,7 +6,7 @@ const OrderModel = require('./models/Order')
 const { entrySignalDetection, takeProfitSignalDetection, stopLossSignalDetection, entry } = require('./strategies/knive-catcher')
 
 const WALLET = {
-  budget: 1
+  capital: 1
 }
 
 backtest()
@@ -23,10 +23,16 @@ async function backtest () {
   // Use `next()` and `await` to exhaust the cursor
   for (let ticker = await cursor.next(); ticker != null; ticker = await cursor.next()) {
     // entry signal detection
-    if (await entrySignalDetection(ticker)) {
-      if (await entry(ticker, WALLET.budget)) {
-        console.log(`Entered: ${ticker.currencyPair} at ${ticker.last}`)
+    if (WALLET.capital > 0.000001) {
+      if (await entrySignalDetection(ticker)) {
+        const positionSize = await entry(ticker, WALLET.capital)
+        if (positionSize) {
+          WALLET.capital -= positionSize
+          console.log(`Entered: ${ticker.currencyPair} at ${ticker.last}, capital left: ${WALLET.capital}`)
+        }
       }
+    } else {
+      console.info('No capital')
     }
     // take profit signal detection
     await takeProfitSignalDetection(ticker)
