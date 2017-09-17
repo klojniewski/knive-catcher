@@ -35,7 +35,6 @@ async function stopLossSignalDetection (ms) {
 }
 
 async function entry (ticker, capital) {
-  console.info(ticker)
   const positionSize = Calculator.getPositionSize(capital, STRATEGY.portfolioPercentRiskPerTrade, STRATEGY.stopLossPercent)
   const buyPrice = ticker.last
   const buySize = positionSize / ticker.last
@@ -60,7 +59,6 @@ async function entry (ticker, capital) {
     dateCreated: ticker.time,
     status: Env.STATUS_NEW
   }
-  console.info(orderToCreate)
 
   try {
     await OrderModel(orderToCreate).save()
@@ -68,6 +66,7 @@ async function entry (ticker, capital) {
     console.error(`Failed to create order`)
     process.exit()
   }
+  return positionSize
 }
 
 module.exports.entrySignalDetection = entrySignalDetection
