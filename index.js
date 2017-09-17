@@ -31,11 +31,24 @@ async function backtest () {
           console.log(`Entered: ${ticker.currencyPair} at ${ticker.last}, capital left: ${WALLET.capital}`)
         }
       }
-    } else {
-      console.info('No capital')
+    }
+
+    const orderCursor = OrderModel.find({
+      currencyPair: ticker.currencyPair,
+      status: Env.STATUS_NEW
+    }).cursor()
+    // Use `next()` and `await` to exhaust the orderCursor
+    for (let order = await orderCursor.next(); order != null; order = await orderCursor.next()) {
+      if (order.sellPrice < ticker.last) {
+        order.status = Env.STATUS_SOLD
+        order.dateFinished = ticker.time
+        await order.save()
+        WALLET.capital += (order.sellValue - order.sellCommision)
+        console.log('profit!')
+      }
     }
     // take profit signal detection
-    await takeProfitSignalDetection(ticker)
+    // await takeProfitSignalDetection(ticker)
     // stop loss signal detection
     await stopLossSignalDetection(ticker)
   }

@@ -8,10 +8,12 @@ const orderSchema = mongoose.Schema({
   buyPrice: Number,
   buySize: Number,
   buyCommision: Number,
+  buyValue: Number,
   sellOrderId: {type: Number, default: 0},
   sellPrice: Number,
   sellSize: Number,
   sellCommision: Number,
+  sellValue: Number,
   stopLoss: Number,
   commisionRate: Number,
   estimatedProfit: Number,
@@ -34,10 +36,10 @@ orderSchema.statics.findNew = function (callback) {
   return this.find({ status: Env.STATUS_NEW }, callback)
 }
 
-orderSchema.methods.saveUpdatedStatus = function (statusId, callback) {
+orderSchema.methods.saveUpdatedStatus = function (statusId, dateFinished, callback) {
   this.status = statusId
   if (statusId === Env.STATUS_SOLD || statusId === Env.STATUS_CANCELED) {
-    this.dateFinished = Math.floor(Date.now() / 1000)
+    this.dateFinished = dateFinished || Math.floor(Date.now() / 1000)
   }
   this.save({}, callback)
 }

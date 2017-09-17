@@ -27,8 +27,20 @@ async function entrySignalDetection (ticker) {
 
   return entrySignal
 }
-async function takeProfitSignalDetection (ms) {
-  return ms
+async function takeProfitSignalDetection (ticker, capital) {
+  const cursor = OrderModel.find({
+    currencyPair: ticker.currencyPair,
+    status: Env.STATUS_NEW
+  }).cursor()
+  // Use `next()` and `await` to exhaust the cursor
+  for (let order = await cursor.next(); order != null; order = await cursor.next()) {
+    if (order.sellPrice < ticker.last) {
+      order.status = Env.STATUS_SOLD
+      order.dateFinished = ticker.time
+      await order.save()
+      console.log('profit!')
+    }
+  }
 }
 async function stopLossSignalDetection (ms) {
   return ms
@@ -39,10 +51,12 @@ async function entry (ticker, capital) {
   const buyPrice = ticker.last
   const buySize = positionSize / ticker.last
   const buyCommision = Calculator.getTakerCommisionValue(buySize, ACCOUNT.commisionPercentage)
+  const buyValue = positionSize
   const sellSize = buySize - buyCommision
   const sellCommision = Calculator.getTakerCommisionValue(sellSize, ACCOUNT.commisionPercentage)
   const sellPrice = Calculator.getPercentageIncreasedValue(ticker.last, STRATEGY.takeProfitPercent)
-  const estimatedProfit = (sellSize * sellPrice) - sellCommision - (buyPrice * buySize)
+  const sellValue = (sellSize * sellPrice) - sellCommision
+  const estimatedProfit = sellValue - (buyPrice * buySize)
   const orderToCreate = {
     currencyPair: ticker.currencyPair,
     id: uuidv1(),
@@ -50,10 +64,12 @@ async function entry (ticker, capital) {
     buyPrice,
     buySize,
     buyCommision,
+    buyValue,
     positionSize,
     sellPrice,
     sellSize,
     sellCommision,
+    sellValue,
     estimatedProfit,
     stopLoss: Calculator.getPercentageIncreasedValue(ticker.last, -STRATEGY.stopLossPercent),
     dateCreated: ticker.time,
