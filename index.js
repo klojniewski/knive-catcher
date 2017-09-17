@@ -1,6 +1,7 @@
 const Env = require('./config/env')
 const Mongoose = require('mongoose')
 const TickerModel = require('./models/Ticker')
+const OrderModel = require('./models/Order')
 
 const { entrySignalDetection, takeProfitSignalDetection, stopLossSignalDetection, entry } = require('./strategies/knive-catcher')
 
@@ -13,6 +14,9 @@ backtest()
 async function backtest () {
   Mongoose.connect(Env.DB_URL, { useMongoClient: true })
   Mongoose.Promise = global.Promise
+
+  // delete all orders from previous test
+  await OrderModel.deleteMany({})
 
   // Don't `await`, instead get a cursor
   const cursor = TickerModel.find().cursor()

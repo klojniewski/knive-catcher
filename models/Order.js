@@ -4,7 +4,7 @@ const mongoose = require('mongoose')
 const orderSchema = mongoose.Schema({
   id: {type: String, required: true, unique: true},
   currencyPair: {type: String, required: true},
-  buyOrderId: {type: Number, required: true, unique: true},
+  buyOrderId: {type: String, required: true, unique: true},
   buyPrice: Number,
   buySize: Number,
   buyCommision: Number,
