@@ -39,11 +39,11 @@ async function entry (ticker, capital) {
   const sellSize = Calculator.getSellSize(buySize, buyCommision)
   const sellValue = Calculator.getSellValue(sellSize, sellPrice)
   const sellCommision = Calculator.getTakerCommisionValue(sellValue, ACCOUNT.commisionPercentage)
+  const estimatedProfit = Calculator.getEstimatedProfit(sellValue, buyValue, sellCommision)
 
   const stopLoss = Calculator.getPercentageIncreasedValue(ticker.last, -STRATEGY.stopLossPercent)
   const stopLossValue = Calculator.getSellValue(sellSize, stopLoss)
   const stopLossCommision = Calculator.getTakerCommisionValue(stopLossValue, ACCOUNT.commisionPercentage)
-  const estimatedProfit = Calculator.getEstimatedProfit(sellValue, buyValue, sellCommision)
   const estimatedLoss = Calculator.getEstimatedProfit(stopLossValue, buyValue, stopLossCommision)
 
   const orderToCreate = {

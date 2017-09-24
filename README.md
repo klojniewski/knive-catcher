@@ -32,3 +32,22 @@ No | Ticker | P/L | P/L% | BuyPrice | BuySize | BuyValue | SellPrice | SellSize 
 * Successes: 20
 * Losses: 3
 * Total P/L: 234 BTC (+40%)
+
+## TODO
+
+[ ] idicate the progess of current backtesting
+[ ] API for front-end (list of orders)
+[ ] move order creation logic outside the strategy
+
+## Thoughts
+
+* should I disallow to entry with the same entry price?
+
+Entered: BTC_XRP at 0.000098, capital left: 0.1311624542206427
+Entered: BTC_XRP at 0.000098, capital left: 0.08744163614709513
+Entered: BTC_XRP at 0.000098, capital left: 0.05829442409806342
+Entered: BTC_XRP at 0.000098, capital left: 0.03886294939870895
+Entered: BTC_XRP at 0.000098, capital left: 0.02590863293247263
+
+* should I store backtest results somewhere?
+* should I move strategy variables to node env params?
