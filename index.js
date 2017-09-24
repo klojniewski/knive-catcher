@@ -57,17 +57,15 @@ async function backtest () {
         order.status = Env.STATUS_SOLD_PROFIT
         order.dateFinished = ticker.time
         await order.save()
-        console.log(`Profit! Was: ${WALLET.capital}`)
         WALLET.capital += (order.sellValue - order.sellCommision)
-        console.log(`Profit! Became: ${WALLET.capital}`)
+        console.log(`Profit! Earned: ${order.estimatedProfit}`)
       }
       if (order.stopLoss > ticker.last) {
         order.status = Env.STATUS_SOLD_LOST
         order.dateFinished = ticker.time
         await order.save()
-        console.log(`Loss! Was: ${WALLET.capital}`)
-        WALLET.capital += (order.sellValue - order.sellCommision)
-        console.log(`Loss! Became: ${WALLET.capital}`)
+        WALLET.capital += (order.stopLossValue - order.stopLossCommision)
+        console.log(`Loss! Lost: ${order.estimatedLoss}`)
       }
     }
     await bankruptDetection()
