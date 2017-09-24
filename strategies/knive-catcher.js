@@ -27,24 +27,6 @@ async function entrySignalDetection (ticker) {
 
   return entrySignal
 }
-async function takeProfitSignalDetection (ticker, capital) {
-  const cursor = OrderModel.find({
-    currencyPair: ticker.currencyPair,
-    status: Env.STATUS_NEW
-  }).cursor()
-  // Use `next()` and `await` to exhaust the cursor
-  for (let order = await cursor.next(); order != null; order = await cursor.next()) {
-    if (order.sellPrice < ticker.last) {
-      order.status = Env.STATUS_SOLD
-      order.dateFinished = ticker.time
-      await order.save()
-      console.log('profit!')
-    }
-  }
-}
-async function stopLossSignalDetection (ms) {
-  return ms
-}
 
 async function entry (ticker, capital) {
   const positionSize = Calculator.getPositionSize(capital, STRATEGY.portfolioPercentRiskPerTrade, STRATEGY.stopLossPercent)
@@ -86,6 +68,4 @@ async function entry (ticker, capital) {
 }
 
 module.exports.entrySignalDetection = entrySignalDetection
-module.exports.takeProfitSignalDetection = takeProfitSignalDetection
-module.exports.stopLossSignalDetection = stopLossSignalDetection
 module.exports.entry = entry

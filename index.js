@@ -3,7 +3,7 @@ const Mongoose = require('mongoose')
 const TickerModel = require('./models/Ticker')
 const OrderModel = require('./models/Order')
 
-const { entrySignalDetection, takeProfitSignalDetection, stopLossSignalDetection, entry } = require('./strategies/knive-catcher')
+const { entrySignalDetection, entry } = require('./strategies/knive-catcher')
 
 const WALLET = {
   capital: 1
@@ -17,6 +17,7 @@ async function backtest () {
 
   // delete all orders from previous test
   await OrderModel.deleteMany({})
+  console.info('Removed previous orders')
 
   // Don't `await`, instead get a cursor
   const cursor = TickerModel.find().cursor()
@@ -40,16 +41,19 @@ async function backtest () {
     // Use `next()` and `await` to exhaust the orderCursor
     for (let order = await orderCursor.next(); order != null; order = await orderCursor.next()) {
       if (order.sellPrice < ticker.last) {
-        order.status = Env.STATUS_SOLD
+        order.status = Env.STATUS_SOLD_PROFIT
         order.dateFinished = ticker.time
         await order.save()
         WALLET.capital += (order.sellValue - order.sellCommision)
         console.log('profit!')
       }
+      if (order.stopLoss > ticker.last) {
+        order.status = Env.STATUS_SOLD_LOST
+        order.dateFinished = ticker.time
+        await order.save()
+        WALLET.capital += (order.sellValue - order.sellCommision)
+        console.log('loss!')
+      }
     }
-    // take profit signal detection
-    // await takeProfitSignalDetection(ticker)
-    // stop loss signal detection
-    await stopLossSignalDetection(ticker)
   }
 }
