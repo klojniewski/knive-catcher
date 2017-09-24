@@ -11,6 +11,17 @@ const WALLET = {
 
 backtest()
 
+async function bankruptDetection () {
+  const activeOrders = await OrderModel.count({
+    status: Env.STATUS_NEW
+  })
+  if (activeOrders === 0 && WALLET.capital < 0.000001) {
+    console.log(`${activeOrders} / ${WALLET.capital}`)
+    console.error(`Bankrupt :rip`)
+    process.exit()
+  }
+}
+
 async function backtest () {
   Mongoose.connect(Env.DB_URL, { useMongoClient: true })
   Mongoose.Promise = global.Promise
@@ -44,16 +55,19 @@ async function backtest () {
         order.status = Env.STATUS_SOLD_PROFIT
         order.dateFinished = ticker.time
         await order.save()
+        console.log(`Profit! Was: ${WALLET.capital}`)
         WALLET.capital += (order.sellValue - order.sellCommision)
-        console.log('profit!')
+        console.log(`Profit! Became: ${WALLET.capital}`)
       }
       if (order.stopLoss > ticker.last) {
         order.status = Env.STATUS_SOLD_LOST
         order.dateFinished = ticker.time
         await order.save()
+        console.log(`Loss! Was: ${WALLET.capital}`)
         WALLET.capital += (order.sellValue - order.sellCommision)
-        console.log('loss!')
+        console.log(`Loss! Became: ${WALLET.capital}`)
       }
     }
+    await bankruptDetection()
   }
 }
