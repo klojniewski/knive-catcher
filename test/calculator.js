@@ -26,3 +26,25 @@ test('getPercentageIncreasedValue should add percentages', t => {
 test('getTakerCommisionValue should return commision amount', t => {
   t.is(Calc.getTakerCommisionValue(1000, 0.25), 2.5)
 })
+
+test('getBuySize', t => {
+  t.is(Calc.getBuySize(2, 1), 2)
+  t.is(Calc.getBuySize(4, 2), 2)
+  t.is(Calc.getBuySize(0.000330990600161618, 0.11068322), 0.0029904316134064224)
+})
+
+test('getSellSize', t => {
+  t.is(Calc.getSellSize(2, 1), 1)
+  t.is(Calc.getSellSize(4, 2), 2)
+  t.is(Calc.getSellSize(0.000330990600161618, 0.11068322), -0.11035222939983838)
+})
+
+test('getSellValue', t => {
+  t.is(Calc.getSellValue(2, 1), 2)
+  t.is(Calc.getSellValue(2, 2), 4)
+})
+
+test('getEstimatedProfit', t => {
+  t.is(Calc.getEstimatedProfit(10, 8, 1), 1)
+  t.is(Calc.getEstimatedProfit(20, 10, 2), 8)
+})

@@ -37,14 +37,16 @@ async function backtest () {
     // entry signal detection
     if (WALLET.capital > 0.000001) {
       if (await entrySignalDetection(ticker)) {
-        const positionSize = await entry(ticker, WALLET.capital)
-        if (positionSize) {
-          WALLET.capital -= positionSize
+        const createdOrder = await entry(ticker, WALLET.capital)
+        if (createdOrder) {
+          WALLET.capital -= createdOrder.buyValue
           console.log(`Entered: ${ticker.currencyPair} at ${ticker.last}, capital left: ${WALLET.capital}`)
+        } else {
+          console.log(`Estimated profit too low, not entering.`)
         }
       }
     }
-
+    // managing active orders
     const orderCursor = OrderModel.find({
       currencyPair: ticker.currencyPair,
       status: Env.STATUS_NEW

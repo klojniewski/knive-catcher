@@ -29,16 +29,19 @@ async function entrySignalDetection (ticker) {
 }
 
 async function entry (ticker, capital) {
-  const positionSize = Calculator.getPositionSize(capital, STRATEGY.portfolioPercentRiskPerTrade, STRATEGY.stopLossPercent)
+  let entered = false
   const buyPrice = ticker.last
-  const buySize = positionSize / ticker.last
+  const buyValue = Calculator.getPositionSize(capital, STRATEGY.portfolioPercentRiskPerTrade, STRATEGY.stopLossPercent)
+  const buySize = Calculator.getBuySize(buyValue, buyPrice)
   const buyCommision = Calculator.getTakerCommisionValue(buySize, ACCOUNT.commisionPercentage)
-  const buyValue = positionSize
-  const sellSize = buySize - buyCommision
-  const sellCommision = Calculator.getTakerCommisionValue(sellSize, ACCOUNT.commisionPercentage)
+
   const sellPrice = Calculator.getPercentageIncreasedValue(ticker.last, STRATEGY.takeProfitPercent)
-  const sellValue = (sellSize * sellPrice) - sellCommision
-  const estimatedProfit = sellValue - (buyPrice * buySize)
+  const sellSize = Calculator.getSellSize(buySize, buyCommision)
+  const sellValue = Calculator.getSellValue(sellSize, sellPrice)
+  const sellCommision = Calculator.getTakerCommisionValue(sellValue, ACCOUNT.commisionPercentage)
+
+  const estimatedProfit = Calculator.getEstimatedProfit(sellValue, buyValue, sellCommision)
+
   const orderToCreate = {
     currencyPair: ticker.currencyPair,
     id: uuidv1(),
@@ -47,7 +50,6 @@ async function entry (ticker, capital) {
     buySize,
     buyCommision,
     buyValue,
-    positionSize,
     sellPrice,
     sellSize,
     sellCommision,
@@ -57,14 +59,16 @@ async function entry (ticker, capital) {
     dateCreated: ticker.time,
     status: Env.STATUS_NEW
   }
-
-  try {
-    await OrderModel(orderToCreate).save()
-  } catch (error) {
-    console.error(`Failed to create order`)
-    process.exit()
+  if (orderToCreate.estimatedProfit > 0.000001) {
+    try {
+      await OrderModel(orderToCreate).save()
+      entered = true
+    } catch (error) {
+      console.error(`Failed to create order`)
+      process.exit()
+    }
   }
-  return positionSize
+  return entered ? orderToCreate : false
 }
 
 module.exports.entrySignalDetection = entrySignalDetection
