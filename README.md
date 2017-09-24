@@ -35,9 +35,9 @@ No | Ticker | P/L | P/L% | BuyPrice | BuySize | BuyValue | SellPrice | SellSize 
 
 ## TODO
 
-[ ] idicate the progess of current backtesting
-[ ] API for front-end (list of orders)
-[ ] move order creation logic outside the strategy
+- [ ] idicate the progess of current backtesting
+- [ ] API for front-end (list of orders)
+- [ ] move order creation logic outside the strategy
 
 ## Thoughts
 
